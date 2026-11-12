@@ -1,0 +1,28 @@
+name: Incident
+description: A live factory drifted from its desired state (normally opened by monitoring)
+title: "[Incident] "
+labels: ["incident"]
+body:
+  - type: input
+    id: factory
+    attributes:
+      label: Factory
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What failed
+      description: The check that passed after deploy and now fails, with evidence (rates, diagnosis).
+    validations:
+      required: true
+  - type: input
+    id: story
+    attributes:
+      label: Original story
+      description: "The story whose deploy introduced or last verified this, e.g. #12"
+  - type: textarea
+    id: snapshot
+    attributes:
+      label: Snapshot
+      description: Link to the snapshot taken when the drift was detected.

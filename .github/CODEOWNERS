@@ -1,0 +1,8 @@
+# Shared or governing paths: changes affect every factory or the rules themselves.
+/library/        @MHudak
+/schemas/        @MHudak
+/scripts/        @MHudak
+/templates/      @MHudak
+/.github/        @MHudak
+/CLAUDE.md       @MHudak
+/docs/           @MHudak

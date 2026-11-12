@@ -1,0 +1,12 @@
+# Runtime state never belongs here (docs/architecture.md)
+*.zip
+*.db
+*.sqlite
+*.sqlite3
+*.log
+runs/
+saves/
+state/
+.factorio-data*/
+__pycache__/
+.venv/

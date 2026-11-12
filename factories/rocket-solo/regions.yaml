@@ -1,0 +1,17 @@
+# Map regions for this factory (seed 2024). Coordinates from the factorio-claude pilots on this
+# seed. Regions must not overlap; hot spots need a lease to change.
+schema_version: "1.0.0"
+regions:
+  - id: iron-field
+    area: {x1: -34, y1: 25, x2: 2, y2: 60}
+    purpose: "Iron ore patch (centre about -15,43)"
+  - id: coal-copper
+    area: {x1: 29, y1: -74, x2: 59, y2: -38}
+    purpose: "Coal (centre 42,-65) and copper (centre 48,-50)"
+  - id: lake-power
+    area: {x1: 30, y1: 10, x2: 60, y2: 40}
+    purpose: "Water: steam power site"
+  - id: main-base
+    area: {x1: 3, y1: 0, x2: 29, y2: 40}
+    purpose: "Science and assembly"
+    hot_spot: true

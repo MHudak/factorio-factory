@@ -1,0 +1,58 @@
+# Verifies that every commit on main is signed by a key in allowed_signers.
+# A failure opens an issue (once per offending commit set) rather than failing silently.
+name: Audit snapshot signatures
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify signatures
+        id: verify
+        run: |
+          set -euo pipefail
+          keys=$(grep -v -e '^[[:space:]]*#' -e '^[[:space:]]*$' allowed_signers || true)
+          if [ -z "$keys" ]; then
+            echo "allowed_signers has no keys yet; nothing to verify against" >> "$GITHUB_STEP_SUMMARY"
+            echo "bad=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git config gpg.format ssh
+          git config gpg.ssh.program ssh-keygen
+          git config gpg.ssh.allowedSignersFile "$PWD/allowed_signers"
+          # The template's initial commit (made by GitHub when the repo was created) is exempt.
+          first=$(git rev-list --max-parents=0 HEAD | head -1)
+          bad=$(git log --format='%H %G?' "${first}..HEAD" | awk '$2 != "G" {print $1}' | tr '\n' ' ')
+          echo "bad=${bad}" >> "$GITHUB_OUTPUT"
+          if [ -n "$bad" ]; then
+            echo "Unsigned or untrusted commits: $bad" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "All commits signed by allowed keys." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Open an incident
+        if: steps.verify.outputs.bad != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BAD: ${{ steps.verify.outputs.bad }}
+        run: |
+          title="Snapshot signature audit failed"
+          gh label create incident --color B60205 --description "Opened by monitoring or audits" --force >/dev/null
+          if gh issue list --state open --search "\"$title\" in:title" --json number --jq 'length' | grep -q '^0$'; then
+            gh issue create --title "$title" --label incident --body "Commits on main not signed by a key in allowed_signers: ${BAD}. Investigate before trusting these snapshots."
+          fi
+          exit 1

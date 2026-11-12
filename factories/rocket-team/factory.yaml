@@ -1,0 +1,33 @@
+# Team: a lead plans and writes the criteria, a designer chooses sites and validates blueprints in
+# the creative sandbox, a builder implements and deploys. Planners have observation tools only.
+schema_version: "1.0.0"
+name: rocket-team
+description: "Lead / designer / builder team launching a rocket. Same seed and budget as rocket-solo."
+goal: launch-rocket
+world:
+  seed: 2024
+  factorio_version: "2.1.24"
+  enemies: false
+  space_age: false
+  server_instance: 2
+mode: survival
+time_model: paused
+feedback: false
+team:
+  structure: team
+  roles:
+    - {role: lead, tools: observe}
+    - {role: designer, tools: observe+sandbox}
+    - {role: builder, tools: act}
+budget:
+  usd_per_life: 6
+library: "0.1.0"
+library_checks: [rocket-milestones]
+snapshots:
+  backend: repo-per-factory
+  repo: MHudak/factorio-snapshots-rocket-team
+  interval_minutes: 60
+  milestone_saves: true
+store:
+  kind: sqlite
+  replication: snapshots

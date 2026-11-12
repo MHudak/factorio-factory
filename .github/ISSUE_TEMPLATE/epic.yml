@@ -1,0 +1,46 @@
+name: Epic
+description: A factory goal or infrastructure outcome, split into stories (Progeny phase 0)
+title: "[Epic] "
+labels: ["progeny:epic"]
+body:
+  - type: input
+    id: factory
+    attributes:
+      label: Factory
+      description: "Factory name (factories/<name>), or 'infrastructure' for repo-wide work"
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem & goal
+      description: What are we trying to achieve, and what does done look like?
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Success metrics
+      description: Milestones, rates, game time, cost.
+    validations:
+      required: true
+  - type: textarea
+    id: in-scope
+    attributes:
+      label: In scope
+    validations:
+      required: true
+  - type: textarea
+    id: out-of-scope
+    attributes:
+      label: Out of scope
+    validations:
+      required: true
+  - type: textarea
+    id: risks
+    attributes:
+      label: Risks
+  - type: textarea
+    id: questions
+    attributes:
+      label: Open questions

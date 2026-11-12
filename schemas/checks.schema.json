@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/MHudak/factorio-factory/schemas/checks.schema.json",
+  "title": "Acceptance checks (factories/<name>/checks/*.yaml, library/checks/*.yaml)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "checks"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "title", "criteria"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
+          "title": {"type": "string"},
+          "milestone": {"type": "boolean", "default": false},
+          "max_minutes": {"type": "number", "exclusiveMinimum": 0},
+          "region": {"type": "string", "description": "region id; area-scoped criteria are measured inside it"},
+          "criteria": {
+            "type": "array",
+            "minItems": 1,
+            "description": "factorio-claude typed criteria (production_rate, entity_count, entity_working, research, inventory, train_arrivals) or {type: lua, check: ...}",
+            "items": {
+              "type": "object",
+              "required": ["type"],
+              "properties": {
+                "type": {"enum": ["production_rate", "fluid_rate", "entity_count", "entity_working", "research", "inventory", "train_arrivals", "rockets_launched", "lua"]}
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

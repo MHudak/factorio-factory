@@ -1,0 +1,66 @@
+# Milestones toward launching a rocket (vanilla 2.1, no Space Age). Mirrors factorio-claude's
+# goals/launch-rocket.toml stages, written as typed criteria where possible.
+schema_version: "1.0.0"
+checks:
+  - id: burner-mining
+    title: "Burner phase: 4+ burner drills and 15+ iron plates/min"
+    milestone: true
+    max_minutes: 30
+    criteria:
+      - {type: entity_count, name: burner-mining-drill, min_count: 4, scope: force}
+      - {type: production_rate, item: iron-plate, min_per_min: 15, scope: force, window: ten_minutes}
+  - id: steam-power
+    title: "Steam power: offshore pump, boiler and steam engine running"
+    milestone: true
+    max_minutes: 40
+    criteria:
+      - {type: entity_working, name: steam-engine, min_count: 1, scope: force}
+      - {type: entity_count, name: offshore-pump, min_count: 1, scope: force}
+  - id: red-science
+    title: "Automated red science (5/min)"
+    milestone: true
+    max_minutes: 45
+    criteria:
+      - {type: production_rate, item: automation-science-pack, min_per_min: 5, scope: force, window: ten_minutes}
+  - id: automation
+    title: "Automation researched"
+    milestone: true
+    max_minutes: 30
+    criteria:
+      - {type: research, technology: automation}
+  - id: green-science
+    title: "Automated green science (5/min)"
+    milestone: true
+    max_minutes: 90
+    criteria:
+      - {type: production_rate, item: logistic-science-pack, min_per_min: 5, scope: force, window: ten_minutes}
+  - id: oil
+    title: "Oil processing: refinery producing petroleum gas"
+    milestone: true
+    max_minutes: 120
+    criteria:
+      - {type: research, technology: oil-processing}
+      - {type: fluid_rate, fluid: petroleum-gas, min_per_min: 1, window: ten_minutes}
+  - id: blue-science
+    title: "Automated blue science (2/min)"
+    milestone: true
+    max_minutes: 150
+    criteria:
+      - {type: production_rate, item: chemical-science-pack, min_per_min: 2, scope: force, window: ten_minutes}
+  - id: silo
+    title: "Rocket silo built"
+    milestone: true
+    criteria:
+      - {type: entity_count, name: rocket-silo, min_count: 1, scope: force}
+  - id: launch
+    title: "Rocket launched"
+    milestone: true
+    criteria:
+      - {type: rockets_launched, min: 1}
+  - id: automation-ratio
+    title: "Science is machine-made, not hand-crafted (pilot finding: hand-feeding was the ceiling)"
+    criteria:
+      - type: lua
+        check: |
+          -- share of science packs made by assemblers vs. hand-crafted (needs factorio-claude stats split)
+          return {done = false, score = 0, detail = "pending: requires machine vs hand production split"}

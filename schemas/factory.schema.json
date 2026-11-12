@@ -1,0 +1,232 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/MHudak/factorio-factory/schemas/factory.schema.json",
+  "title": "Factory definition (factories/<name>/factory.yaml)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "name",
+    "goal",
+    "world",
+    "mode",
+    "time_model",
+    "team",
+    "library",
+    "snapshots",
+    "store"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{1,38}$"
+    },
+    "description": {
+      "type": "string"
+    },
+    "goal": {
+      "type": "string",
+      "description": "factorio-claude goal id, e.g. launch-rocket"
+    },
+    "world": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "seed",
+        "factorio_version"
+      ],
+      "properties": {
+        "seed": {
+          "type": "integer"
+        },
+        "factorio_version": {
+          "type": "string"
+        },
+        "enemies": {
+          "type": "boolean",
+          "default": false
+        },
+        "space_age": {
+          "type": "boolean",
+          "default": false
+        },
+        "server_instance": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "FCLAUDE_INSTANCE on the factory host"
+        }
+      }
+    },
+    "mode": {
+      "enum": [
+        "survival",
+        "creative"
+      ]
+    },
+    "time_model": {
+      "enum": [
+        "paused",
+        "live"
+      ]
+    },
+    "feedback": {
+      "type": "boolean",
+      "default": false,
+      "description": "return verification and diagnosis to agents"
+    },
+    "team": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "structure",
+        "roles"
+      ],
+      "properties": {
+        "structure": {
+          "enum": [
+            "solo",
+            "team"
+          ]
+        },
+        "roles": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "role",
+              "tools"
+            ],
+            "properties": {
+              "role": {
+                "enum": [
+                  "solo",
+                  "lead",
+                  "designer",
+                  "builder",
+                  "operator"
+                ]
+              },
+              "model": {
+                "type": "string"
+              },
+              "tools": {
+                "enum": [
+                  "all",
+                  "observe",
+                  "observe+sandbox",
+                  "act"
+                ]
+              },
+              "count": {
+                "type": "integer",
+                "minimum": 1,
+                "default": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    "budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "usd_per_life": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "usd_total": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      }
+    },
+    "library": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "pinned library/ release"
+    },
+    "snapshots": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "backend",
+        "interval_minutes"
+      ],
+      "properties": {
+        "backend": {
+          "enum": [
+            "repo-per-factory",
+            "gateway",
+            "rulesets-apps"
+          ],
+          "description": "repo-per-factory is implemented; gateway and rulesets-apps are planned"
+        },
+        "repo": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9-]+/[A-Za-z0-9._-]+$"
+        },
+        "interval_minutes": {
+          "type": "integer",
+          "minimum": 5
+        },
+        "milestone_saves": {
+          "type": "boolean",
+          "default": true
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "backend": {
+                "const": "repo-per-factory"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "repo"
+            ]
+          }
+        }
+      ]
+    },
+    "store": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "sqlite",
+            "postgres"
+          ]
+        },
+        "replication": {
+          "enum": [
+            "none",
+            "snapshots",
+            "object-storage"
+          ],
+          "default": "none"
+        }
+      }
+    },
+    "library_checks": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9][a-z0-9-]*$"
+      },
+      "description": "check files under library/checks/ (at the pinned release) that apply to this factory"
+    }
+  }
+}

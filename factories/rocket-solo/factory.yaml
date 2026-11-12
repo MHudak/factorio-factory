@@ -1,0 +1,30 @@
+# Baseline: one agent does everything (the setup used in the factorio-claude rocket pilots).
+schema_version: "1.0.0"
+name: rocket-solo
+description: "Single-agent baseline for launching a rocket. Compare with rocket-team on the same seed."
+goal: launch-rocket
+world:
+  seed: 2024
+  factorio_version: "2.1.24"
+  enemies: false
+  space_age: false
+  server_instance: 1
+mode: survival
+time_model: paused        # live once the first runs are stable
+feedback: false
+team:
+  structure: solo
+  roles:
+    - {role: solo, tools: all}
+budget:
+  usd_per_life: 6
+library: "0.1.0"
+library_checks: [rocket-milestones]
+snapshots:
+  backend: repo-per-factory
+  repo: MHudak/factorio-snapshots-rocket-solo
+  interval_minutes: 60
+  milestone_saves: true
+store:
+  kind: sqlite
+  replication: snapshots

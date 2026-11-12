@@ -1,0 +1,3 @@
+# Factory-specific checks, beyond library/checks/rocket-milestones.yaml (pinned in factory.yaml).
+schema_version: "1.0.0"
+checks: []

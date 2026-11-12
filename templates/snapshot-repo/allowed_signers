@@ -1,0 +1,4 @@
+# One line per key allowed to sign snapshot commits (ssh-keygen ALLOWED SIGNERS format):
+# <principal> namespaces="git" <key-type> <public-key>
+# Example (replace with the factory controller's signing key):
+# rocket-team@factorio-factory namespaces="git" ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAA...

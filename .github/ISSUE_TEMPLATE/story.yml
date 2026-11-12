@@ -1,0 +1,77 @@
+name: Story
+description: A deliverable slice of an epic with testable acceptance criteria (Progeny-compatible)
+title: "[Story] "
+labels: ["progeny:story"]
+body:
+  - type: input
+    id: epic
+    attributes:
+      label: Parent epic
+      description: "Issue number, e.g. #3"
+    validations:
+      required: true
+  - type: input
+    id: factory
+    attributes:
+      label: Factory
+      description: "Factory name, or 'infrastructure'"
+    validations:
+      required: true
+  - type: textarea
+    id: story
+    attributes:
+      label: User story
+      value: "As a <role>, I want <capability> so that <benefit>."
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context / background
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Numbered, independently testable. For factory work, prefer checks that factorio-claude can verify (production rate, entity working, research) in a named region.
+      value: |
+        - **AC-1:** Given <state>, when <action>, then <observable result>.
+    validations:
+      required: true
+  - type: textarea
+    id: out-of-scope
+    attributes:
+      label: Out of scope
+    validations:
+      required: true
+  - type: textarea
+    id: write-scope
+    attributes:
+      label: Write scope
+      description: "Path globs this story may change, one per line (for factory work: factories/<name>/**)."
+    validations:
+      required: true
+  - type: textarea
+    id: regions
+    attributes:
+      label: Regions
+      description: "Region ids from factories/<name>/regions.yaml that the deploy may change (factory work only)."
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+  - type: textarea
+    id: questions
+    attributes:
+      label: Open questions
+  - type: dropdown
+    id: entry
+    attributes:
+      label: Suggested entry phase
+      options:
+        - 1 Triage & refinement
+        - 2 Design
+        - 3 Implementation
+    validations:
+      required: true

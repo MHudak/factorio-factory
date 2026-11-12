@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/MHudak/factorio-factory/schemas/snapshot.schema.json",
+  "title": "Observed-state snapshot of one factory (snapshot repos)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "factory", "taken_at", "trigger", "game", "milestones", "production_per_minute", "entity_counts"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "factory": {"type": "string"},
+    "taken_at": {"type": "string", "format": "date-time"},
+    "trigger": {"enum": ["interval", "milestone", "manual", "incident"]},
+    "game": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tick", "minutes", "version", "seed"],
+      "properties": {"tick": {"type": "integer", "minimum": 0}, "minutes": {"type": "number"}, "version": {"type": "string"}, "seed": {"type": "integer"}}
+    },
+    "desired_state_commit": {"type": "string", "pattern": "^[0-9a-f]{7,40}$"},
+    "milestones": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}, "description": "milestone id -> tick first reached"},
+    "research": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {"researched": {"type": "integer"}, "current": {"type": ["string", "null"]}, "progress": {"type": "number"}}
+    },
+    "production_per_minute": {"type": "object", "additionalProperties": {"type": "number"}},
+    "entity_counts": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
+    "power": {"type": "object", "additionalProperties": false, "properties": {"production_kw": {"type": "number"}, "consumption_kw": {"type": "number"}}},
+    "open_incidents": {"type": "array", "items": {"type": "integer"}},
+    "save": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind"],
+      "properties": {
+        "kind": {"enum": ["none", "milestone", "manual"]},
+        "url": {"type": "string"},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "bytes": {"type": "integer", "minimum": 0}
+      }
+    }
+  }
+}
