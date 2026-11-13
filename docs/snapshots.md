@@ -71,16 +71,73 @@ the SHA-256 in the snapshot keeps the reference tamper-evident.
 
 ## Setting up a factory's snapshot repo
 
-```bash
-# 1. Create the repo from the template; a maintainer creates repos (agents cannot)
-gh repo create MHudak/factorio-snapshots-rocket-team --public --template MHudak/factorio-factory-snapshot-template
-# or copy templates/snapshot-repo/ into an empty repo
+A maintainer does this once per factory (agents cannot create repos). The example is for
+`rocket-team`; the controller's key pair is `~/.ssh/rocket-team-snapshots`.
 
-# 2. Apply protection and register the factory's deploy key and signing key
-scripts/setup-snapshot-repo.sh MHudak/factorio-snapshots-rocket-team ~/.ssh/rocket-team-snapshots.pub
+```bash
+# 1. Create an empty repo and fill it from the template in this repo
+gh repo create MHudak/factorio-snapshots-rocket-team --public
+git clone git@github.com:MHudak/factorio-snapshots-rocket-team.git
+cp -r templates/snapshot-repo/. factorio-snapshots-rocket-team/
+```
+
+Make the first commit with your GitHub noreply address (`<id>+<user>@users.noreply.github.com`),
+not a personal one: the repo is public and its history cannot be rewritten once the ruleset is
+on. The audit exempts this first commit, so it does not need to be signed.
+
+```bash
+# 2. Apply protection, register the deploy key, print the allowed_signers line.
+#    Pass the principal explicitly: it must be <factory>@factorio-factory.
+scripts/setup-snapshot-repo.sh MHudak/factorio-snapshots-rocket-team \
+  ~/.ssh/rocket-team-snapshots.pub rocket-team@factorio-factory
 ```
 
 The setup script creates the ruleset (no force pushes, no deletion, linear history) and adds
-the deploy key with write access. It also prints the `allowed_signers` line to commit. The
-controller must commit with the email that line names, and sign with
-`git -c gpg.format=ssh -c user.signingkey=<key>.pub commit -S`.
+the deploy key with write access. Commit the `allowed_signers` line it prints together with the
+template in step 1, then push.
+
+## Running the writer
+
+The writer is `fclaude snapshot` in
+[factorio-claude](https://github.com/MHudak/factorio-claude#snapshots-for-factorio-factory). It
+runs on the factory's host, next to its Factorio server (`FCLAUDE_INSTANCE` set to the
+factory's `world.server_instance`), and is the snapshot repo's only writer.
+
+```bash
+# Check what would be written; writes nothing
+fclaude snapshot factories/rocket-team --dry-run
+
+# One snapshot now (trigger manual, or --trigger incident)
+fclaude snapshot factories/rocket-team --repo-dir ~/snapshots/rocket-team \
+  --signing-key ~/.ssh/rocket-team-snapshots --deploy-key ~/.ssh/rocket-team-snapshots
+
+# The factory controller: runs until stopped
+fclaude snapshot factories/rocket-team --repo-dir ~/snapshots/rocket-team \
+  --signing-key ~/.ssh/rocket-team-snapshots --deploy-key ~/.ssh/rocket-team-snapshots --watch
+```
+
+| Credential | Used for | Needed by |
+|---|---|---|
+| Signing key (SSH) | Signing each commit; its public half is in `allowed_signers` | Every write |
+| Deploy key (SSH, write) | Pushing to the snapshot repo; may be the same key pair | Every push, unless the clone has other credentials |
+| Token that may write releases (`gh`) | Attaching milestone saves (`--upload-saves`) | Only with `--upload-saves`; a deploy key cannot create releases |
+
+**When snapshots are taken (`--watch`).**
+
+- **Milestone:** when one of the factory goal's stages (factorio-claude
+  `goals/<goal>.toml`) is first met. The tick it was first met is kept in the game save, so
+  milestones travel with saves and the writer keeps no state of its own. Milestones already met
+  when the writer first runs are recorded at that tick. With `snapshots.milestone_saves`, the
+  game is saved and the snapshot records the save's SHA-256 and size (and URL, with
+  `--upload-saves`).
+- **Interval:** every `snapshots.interval_minutes` of **game** time since the last snapshot,
+  read back from `latest.json`. A paused game takes no interval snapshots.
+
+**Safety checks.** The writer refuses to write if:
+
+- the running game's seed differs from `factory.yaml` (wrong server instance);
+- the clone has uncommitted changes;
+- the committer email is not in `allowed_signers`.
+
+It also verifies each new commit against `allowed_signers` before pushing. If the commit does
+not verify, it is undone and nothing is pushed.
