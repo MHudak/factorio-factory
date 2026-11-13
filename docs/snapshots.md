@@ -86,11 +86,13 @@ not a personal one: the repo is public and its history cannot be rewritten once 
 on. The audit exempts this first commit, so it does not need to be signed.
 
 ```bash
-# 2. Apply protection, register the deploy key, print the allowed_signers line.
-#    Pass the principal explicitly: it must be <factory>@factorio-factory.
-scripts/setup-snapshot-repo.sh MHudak/factorio-snapshots-rocket-team \
-  ~/.ssh/rocket-team-snapshots.pub rocket-team@factorio-factory
+# 2. Apply protection, register the deploy key, print the allowed_signers line
+scripts/setup-snapshot-repo.sh MHudak/factorio-snapshots-rocket-team ~/.ssh/rocket-team-snapshots.pub
 ```
+
+The principal defaults to `<factory>@factorio-factory` (here `rocket-team@factorio-factory`),
+the email the writer commits as. For a repo not named `factorio-snapshots-<factory>`, pass it
+as a third argument.
 
 The setup script creates the ruleset (no force pushes, no deletion, linear history) and adds
 the deploy key with write access. Commit the `allowed_signers` line it prints together with the
