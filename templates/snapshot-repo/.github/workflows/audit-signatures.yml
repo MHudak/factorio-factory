@@ -15,7 +15,8 @@ permissions:
 
 jobs:
   audit:
-    runs-on: ubuntu-latest
+    # CI_RUNS_ON, a JSON list of runner labels, moves the job to a self-hosted runner; unset, it runs on ubuntu-latest.
+    runs-on: ${{ vars.CI_RUNS_ON && fromJSON(vars.CI_RUNS_ON) || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
         with:
