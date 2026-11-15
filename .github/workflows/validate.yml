@@ -10,14 +10,22 @@ permissions:
 
 jobs:
   validate:
-    runs-on: ubuntu-latest
+    # CI_RUNS_ON, a JSON list of runner labels, moves the job to the maintainer's self-hosted runner; unset, it runs on
+    # ubuntu-latest. A pull request from a fork always runs on ubuntu-latest, so no outside code runs on that machine.
+    runs-on: ${{ vars.CI_RUNS_ON && !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) && fromJSON(vars.CI_RUNS_ON) || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0   # library pins are checked against library-v* tags
+      # The self-hosted runner brings its own Python 3.
       - uses: actions/setup-python@v5
+        if: runner.environment == 'github-hosted'
         with:
           python-version: "3.12"
+      - name: Python environment
+        run: |
+          python3 -m venv "$RUNNER_TEMP/venv"
+          echo "$RUNNER_TEMP/venv/bin" >> "$GITHUB_PATH"
       - run: pip install pyyaml==6.0.2 jsonschema==4.23.0
       - run: python scripts/validate.py
       - name: Shell scripts parse
